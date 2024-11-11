@@ -3,13 +3,12 @@ function plot_waveform(input, clu_label1, clu_label2)
 
 chan_pos = input.chan_pos;
 chan_map = input.chan_map;
-input_path = input.input_path;
 data_path1 = input.data_path1;
 data_path2 = input.data_path2;
 z_step = input.zStep;
 x_step = input.xStep;
-wave1 = readNPY(fullfile(input_path,data_path1,input.wf_name));
-wave2 = readNPY(fullfile(input_path,data_path2,input.wf_name));
+wave1 = readNPY(fullfile(data_path1,input.wf_name));
+wave2 = readNPY(fullfile(data_path2,input.wf_name));
 
 % if the number of channels in mw differ from chan_map, assume mw is the
 % original data including all channels, and select only those included in

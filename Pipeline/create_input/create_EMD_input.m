@@ -1,6 +1,5 @@
 function output = create_EMD_input(input, output, wf_metrics1, wf_metrics2, mwf1, mwf2, stage)
 
-input_path = input.input_path;
 EMD_input_dir = input.EMD_path;
 data_path1 = input.data_path1;
 data_path2 = input.data_path2;
@@ -81,8 +80,8 @@ end
 
 % get KSgood unit
 if bUseKSlabel
-    kscall1 = readKS2label(fullfile(input_path,data_path1,KSLabel_name),npts_f1);
-    kscall2 = readKS2label(fullfile(input_path,data_path2,KSLabel_name),npts_f2);
+    kscall1 = readKS2label(fullfile(data_path1,KSLabel_name),npts_f1);
+    kscall2 = readKS2label(fullfile(data_path2,KSLabel_name),npts_f2);
     good_unit_1 = kscall1 & ~allzero_mw1 & onshank_mw1;
     good_unit_2 = kscall2 & ~allzero_mw2 & onshank_mw2;
 else
