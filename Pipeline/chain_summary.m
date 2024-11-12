@@ -4,7 +4,7 @@
 function [chain_all,z_loc,len] = chain_summary(all_input,all_output,numData,output_path)
 
 % Summarize chains
-numChain = 50; % starting size, expand as needed 
+numChain = 50; % starting size, expand as needed
 z_loc = NaN(numChain,numData); % hold z locations
 chain_all = NaN(numChain, numData); % hold chains
 
@@ -39,8 +39,8 @@ for ir = 1:length(all_output)-1
             count = count + 1;
             % Expand chain_all and z_loc if count exceeds current size
             if count > size(chain_all, 1)
-                chain_all = [chain_all; NaN(numChains, numData)];
-                z_loc = [z_loc; NaN(numChains, numData)];
+                chain_all = [chain_all; NaN(numChain, numData)];
+                z_loc = [z_loc; NaN(numChain, numData)];
             end
             chain_all(count,ir+1) = same_clu(ic);
             chain_all(count,ir) = allPair1(allPair1(:,2) == same_clu(ic),3);
@@ -56,6 +56,9 @@ end
 chain_all(all(isnan(chain_all), 2), :) = [];
 z_loc(all(isnan(z_loc), 2), :) = [];
 len = sum(~isnan(chain_all), 2); % chain lengths
+
+% Subtract 1 from cluster id's to match with original cluster id's (added 1 because MATLAB is 1-indexed)
+chain_all = chain_all - 1;
 
 if count > 0
     save(fullfile(output_path,'chain_summary.mat'), 'all_input', 'all_output', 'chain_all', 'z_loc', 'len')
