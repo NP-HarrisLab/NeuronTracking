@@ -1,7 +1,7 @@
 function plot_z(path)
 % plot z distance distribution of all matched units
 
-load(fullfile(path,'Output.mat'));
+load(fullfile(path,'Output.mat')); %#ok<LOAD>
 matched_units = output.results_wth;
 all_z = matched_units(:,7);
 unthreshold_matched_units = output.all_results_post;

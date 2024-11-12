@@ -25,11 +25,11 @@ if isempty(varargin )
     modStr = 'new';
     [mmName, mmPath] = uigetfile('*.meta','Select original metadata file');
     modelMetaFullPath = fullfile(mmPath, mmName);
-    if useRezFroc ~= 1     
+    if useRezFroc ~= 1
         [fprocName, fprocPath] = uigetfile({'*.bin','*.dat'}, 'Select fproc file');
         fprocFullPath = fullfile(fprocPath,fprocName);
     end
-        
+    
 else
     % called with rezFullPath
     inputCell = varargin(1);
@@ -38,19 +38,19 @@ else
     modStr = inputCell{1};
     inputCell = varargin(3);
     modelMetaFullPath = inputCell{1};
-    if useRezFroc ~= 1  
+    if useRezFroc ~= 1
         inputCell = varargin(4);
         fprocFullPath = inputCell{1};
     end
-
+    
 end
 
 % build output name, get copy of metaName
-load( rezFullPath );
+load( rezFullPath ); %#ok<LOAD>
 ops = rez.ops;
 
 if useRezFroc
-    fprocFullPath = ops.fproc;
+    fprocFullPath = ops.fproc; %#ok<UNRCH>
 end
 
 [binPath, binName, binExt] = fileparts(rez.ops.fbinary);
@@ -62,10 +62,10 @@ suffix = extractAfter(binName,triggerStr);
 outName = sprintf( '%s%s%s%s', baseName, modStr, suffix, binExt);
 if useRezFroc
     % 'Typically' want the output to go in the directory with the input
-    [outPath, ~, ~] = fileparts(binPath);
+    [outPath, ~, ~] = fileparts(binPath); %#ok<UNRCH>
     outFullPath = fullfile(binPath, outName);
 else
-    % 'Typically' working from a copy of the processed file, and the 
+    % 'Typically' working from a copy of the processed file, and the
     % unwhitened file goes there
     [outPath, ~, ~] = fileparts(fprocFullPath);
     outFullPath = fullfile(outPath,outName);
@@ -92,7 +92,7 @@ metaName = sprintf( '%s%s', extractBefore(outName,'bin'), 'meta');
 % After fitering, points ntb+1:ntb are blended with "dat_prev" which is
 % NT+ntb+1:NT+2*ntb saved from the previous batch.
 % Batch zero gets ntb zeros prepended to its data and blended with the
-% initialized dat_prev (also zeros). 
+% initialized dat_prev (also zeros).
 % After filtering, the data is whitened and then transposed bacyk to NChan
 % rows by NT columns to save. When these batches are read for sorting in
 % learnTemplates, the data is transposed after reading (new in KS25)
@@ -104,12 +104,12 @@ fid = fopen(fprocFullPath, 'r');
 fidW = fopen(outFullPath, 'w'); % open for writing processed data, transposed
 
 if strcmp(KSver,'2.0')
-    batchstart = 0:ops.NT:ops.NT*ops.Nbatch; % batches start at these timepoints
+    batchstart = 0:ops.NT:ops.NT*ops.Nbatch; %#ok<UNRCH> % batches start at these timepoints
     for ibatch = 1:ops.Nbatch
         offset = 2 * ops.Nchan*batchstart(ibatch); % binary file offset in bytes
         fseek(fid, offset, 'bof');
         dat = fread(fid, [ops.NT ops.Nchan], '*int16');
-        % Due to clumsy arithmetic in KS, the first two batches overlap by 
+        % Due to clumsy arithmetic in KS, the first two batches overlap by
         % 2*ops.ntbuff, while later batches overlap by 1*ntbuff
         % trim samples of the end of the current batch accordingly
         if ibatch == 1
@@ -144,8 +144,8 @@ elseif strcmp(KSver,'2.5') || strcmp(KSver,'3.0')
         fwrite(fidW, dat', 'int16'); % write transposed batch to binary, these chunks are in order
     end
 else
-    fprintf( 'Unknown version of Kilsort.\n');
-
+    fprintf( 'Unknown version of Kilsort.\n'); %#ok<UNRCH>
+    
 end
 
 fclose(fid);
@@ -155,10 +155,10 @@ if strlength(modelMetaFullPath) > 0
     
     fp = dir(outFullPath);
     newTags = cell(4,1);
-    newTag{1} = sprintf('%s%d', 'fileSizeBytes=', fp.bytes);
-    newTag{2} = sprintf('%s%d', 'nSavedChans=', ops.Nchan);
-    newTag{3} = sprintf('%s%d%s', 'snsApLfSy=', ops.Nchan, ',0,0');
-    newTag{4} = sprintf('%s%d', 'snsSaveChanSubset=0:',ops.Nchan-1);
+    newTags{1} = sprintf('%s%d', 'fileSizeBytes=', fp.bytes);
+    newTags{2} = sprintf('%s%d', 'nSavedChans=', ops.Nchan);
+    newTags{3} = sprintf('%s%d%s', 'snsApLfSy=', ops.Nchan, ',0,0');
+    newTags{4} = sprintf('%s%d', 'snsSaveChanSubset=0:',ops.Nchan-1);
     repTags = cell(4,1);
     repTags{1} = 'fileSizeBytes';
     repTags{2} = 'nSavedChans';
@@ -177,8 +177,8 @@ if strlength(modelMetaFullPath) > 0
             fprintf(fmeta, '%s\n', tline );
         else
             fprintf('found: %s\n', repTags{tagFound} );
-            fprintf(fmeta, '%s\n', newTag{tagFound} );
-        end  
+            fprintf(fmeta, '%s\n', newTags{tagFound} );
+        end
         tline = fgetl(fmodel);
     end
     fclose(fmeta);

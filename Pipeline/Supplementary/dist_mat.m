@@ -18,12 +18,12 @@ for id1 = 1:numData-1 %first day
         num1 = pair_output.KSgood_f1;
         num2 = pair_output.KSgood_f2;
         KS_norm = min([num1,num2]);
-
+        
         % cost
         cost_wf = cost_wf + sum(C_wf.*pair_output.x_post) / (KS_norm*shank); %normalized cost by KSgood unit number
         cost_loc = cost_loc + sum(C_loc.*pair_output.x_post) / (KS_norm*shank);
         cost = cost + pair_output.cost_post / (KS_norm*shank);
-
+        
     end
     cost_wf_all(id1,id2) = cost_wf;
     cost_loc_all(id1,id2) = cost_loc;
@@ -31,7 +31,7 @@ for id1 = 1:numData-1 %first day
 end
 
 % plot heatmap
-h = figure();
+figure();
 ax = gca;
 ax.FontSize = 18; %tick font
 ax.FontWeight = 'Bold';

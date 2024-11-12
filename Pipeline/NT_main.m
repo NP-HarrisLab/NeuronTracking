@@ -25,9 +25,7 @@ wf_metrics2 = wave_metrics(mwf2, input);
 output.threshold = input.threshold;
 output.z_mode = 0;
 output = create_EMD_input(input, output, wf_metrics1, wf_metrics2, mwf1, mwf2, 'pre'); 
-fprintf('EMD_pre input created! \n')
-output = EMD_unit_match(input,output,'pre');
-fprintf('Pre-correction match found! \n')
+output = EMD_unit_match(input,output, 'pre');
 [output.diffZ,edges] = z_estimate(input);
 output.z_mode = kernelModeEstimate(output.diffZ);
 
@@ -35,21 +33,20 @@ h = findobj('type', 'figure');
 curr_fig_count = numel(h);
 figure(curr_fig_count+1)
 histogram(output.diffZ,edges);
-title(sprintf('drift estimate = %.1f um',output.z_mode));
+title(sprintf('drift estimate = %.1f um', output.z_mode));
 
 % EMD unit matching
 output = create_EMD_input(input, output, wf_metrics1, wf_metrics2, mwf1, mwf2, 'post'); 
-fprintf('EMD_post input created! \n')
-output = EMD_unit_match(input,output,'post');
-fprintf('Matches found! \n')
+output = EMD_unit_match(input, output, 'post');
 
 % thresholding
 output.results_wth = output.all_results_post(output.all_results_post(:,7) <= input.threshold,:); 
+fprintf("    %d matches found \n", length(output.results_wth))
 
 % Save
 if ~exist(input.result_path, 'dir')
     mkdir(input.result_path);
 end
-save(fullfile(input.result_path,'Input.mat'),"input");
-save(fullfile(input.result_path,'Output.mat'),"output");
+save(fullfile(input.result_path, 'Input.mat'), "input");
+save(fullfile(input.result_path, 'Output.mat'), "output");
 end

@@ -1,6 +1,11 @@
 function ks_call = readKS2label(fullpath, nUnit)
 
+% Try to open the file
 fid = fopen(fullpath,'r');
+if fid == -1
+    error("Error: Cannot open file %s", fullpath)
+end
+
 % allocate excess space to hold calls
 % Depending on format, the number of calls may be < nUnit
 ks_call = zeros([nUnit,1], 'logical');

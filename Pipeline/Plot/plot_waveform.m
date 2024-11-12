@@ -61,7 +61,7 @@ rowPos = unique(yC); %all y positions
 
 % plot setting
 colSpace = maxSample + tPadFrac*maxSample; % horizontal dimensions
-xlow = -0.5*colSpace;
+% xlow = -0.5*colSpace;
 xhigh = (xMax/hSep)*colSpace*colFac;
 % want 0:nt-1 to equal hSep
 tscale = ((xhigh/xMax)*hSep)/colSpace; % points in hSep
@@ -70,7 +70,7 @@ tpts = (0:maxSample-1)*tscale; %time points
 
 p_halfW = 0.5*max(tpts); %shift background box left right
 p_halfH = 0.9*rowSpace; %shift background box up down
-h = figure('Name',figName,'Units','centimeters','Position',[4,4,fwidth,fheight]);
+figure('Name',figName,'Units','centimeters','Position',[4,4,fwidth,fheight]);
 
 
 for i = 1:nChan
@@ -82,15 +82,15 @@ for i = 1:nChan
     currX = tpts + currCol*colFac*colSpace;
     currY = currWave1 + currRow*rowFac*rowSpace;
     currY2 = currWave2 + currRow*rowFac*rowSpace;
-
+    
     currX = currX(1:maxSample);
     currY = currY(1:maxSample);
     currY2 = currY2(1:maxSample);
-
+    
     xOff = currCol*colFac*colSpace + p_halfW;
     yOff = currRow*rowFac*rowSpace;
     pgon = polyshape([xOff-p_halfW  xOff+p_halfW  xOff+p_halfW  xOff-p_halfW], ...
-                                [yOff-p_halfH  yOff-p_halfH yOff+p_halfH yOff+p_halfH]);
+        [yOff-p_halfH  yOff-p_halfH yOff+p_halfH yOff+p_halfH]);
     plot(pgon,'FaceColor','white','FaceAlpha',1,'EdgeColor','Red','EdgeAlpha',0.1); hold on
     plot(currX, currY,'Color',[0 0.45 0.74],'LineWidth',1.5); hold on
     plot(currX, currY2,'-.','Color',[0.64 0.08 0.18],'LineWidth',1.5);
@@ -147,14 +147,14 @@ end
 % fheight = 1.5*fwidth; % adjust to set aspect ratio
 % rowSpace = 600; % uV, box height
 % tPadFrac = 0.3; % increase to increase the space between columns
-% 
+%
 % % plot setting
 % [nChan,maxSample] = size(peakWf1);
 % colPos = unique(xC); %all x positions
 % rowPos = unique(yC); %all y positions
 % hSep = colPos(2) - colPos(1); %x position step size
 % vSep = rowPos(2) - rowPos(1); %z position step size
-% 
+%
 % %cluster 1
 % offset = max(peakWf1,[],2) - min(peakWf1,[],2);
 % [~, maxInd] = max(offset);
@@ -178,7 +178,7 @@ end
 %         yC_sub1 = yC(site); %y locations
 %     end
 % end
-% 
+%
 % %cluster 2
 % offset = max(peakWf2,[],2) - min(peakWf2,[],2);
 % [~, maxInd] = max(offset);
@@ -188,7 +188,7 @@ end
 % endRow = min([currentRow+2,(max(yC)-min(yC))/vSep]); %number of rows below
 % endSite = find(yC == endRow*vSep+min(yC),1,'last');
 % peakRow = startRow; %relative location of peak row, use for alignment
-% 
+%
 % numSite = (endRow - startRow + 1)*2;
 % x_site = repmat([min(xC),max(xC)],1,5);
 % rows = repelem([startRow:1:endRow],2);
@@ -203,8 +203,8 @@ end
 %         yC_sub2 = yC(site); %y locations
 %     end
 % end
-% 
-% 
+%
+%
 % % plot setting
 % xMax = 40;
 % rowFac = 1; colFac = 1;
@@ -216,9 +216,9 @@ end
 % tpts = (0:maxSample-1)*tscale; %time points
 % p_halfW = 0.5*max(tpts); %shift left right, x center of box 1
 % p_halfH = 0.5*rowSpace; %shift up down, y center of box 1
-% 
-% 
-% 
+%
+%
+%
 % figure()
 % common_row = min(size(plotSite,1),size(plotSite,1));
 % for i = 1:common_row %plot common rows
@@ -226,15 +226,15 @@ end
 %     currRow = find(rowPos==yC_sub1(i)) - 1;
 %     currWave1 = plotSite(i,:); %wf on a single channel
 %     currWave2 = plotSite(i,:);
-% 
+%
 %     currX = tpts + currCol*colFac*colSpace; %all time point x location
 %     currY = currWave1 + currRow*rowFac*rowSpace; %all wf amp y location
 %     currY2 = currWave2 + currRow*rowFac*rowSpace;
-% 
+%
 %     currX = currX(1:maxSample);
 %     currY = currY(1:maxSample);
 %     currY2 = currY2(1:maxSample);
-% 
+%
 %     xOff = currCol*colFac*colSpace + p_halfW;
 %     yOff = currRow*rowFac*rowSpace;
 %     pgon = polyshape([xOff-p_halfW  xOff+p_halfW  xOff+p_halfW  xOff-p_halfW], ...
@@ -249,13 +249,13 @@ end
 %         currCol = find(colPos==xC_sub1(i)) - 1; %current box row and col
 %         currRow = find(rowPos==yC_sub1(i)) - 1;
 %         currWave1 = plotSite(i,:); %wf on a single channel
-% 
+%
 %         currX = tpts + currCol*colFac*colSpace; %all time point x location
 %         currY = currWave1 + currRow*rowFac*rowSpace; %all wf amp y location
-% 
+%
 %         currX = currX(1:maxSample);
 %         currY = currY(1:maxSample);
-% 
+%
 %         xOff = currCol*colFac*colSpace + p_halfW;
 %         yOff = currRow*rowFac*rowSpace;
 %         pgon = polyshape([xOff-p_halfW  xOff+p_halfW  xOff+p_halfW  xOff-p_halfW], ...
@@ -266,13 +266,13 @@ end
 %         currCol = find(colPos==xC_sub2(i)) - 1; %current box row and col
 %         currRow = find(rowPos==yC_sub2(i)) - 1;
 %         currWave2 = plotSite(i,:);
-% 
+%
 %         currX = tpts + currCol*colFac*colSpace; %all time point x location
 %         currY2 = currWave2 + currRow*rowFac*rowSpace;
-% 
+%
 %         currX = currX(1:maxSample);
 %         currY2 = currY2(1:maxSample);
-% 
+%
 %         xOff = currCol*colFac*colSpace + p_halfW;
 %         yOff = currRow*rowFac*rowSpace;
 %         pgon = polyshape([xOff-p_halfW  xOff+p_halfW  xOff+p_halfW  xOff-p_halfW], ...
@@ -281,12 +281,12 @@ end
 %         plot(currX, currY2,'-.','Color',[0.64 0.08 0.18],'LineWidth',1.5); hold on;
 %     end
 % end
-% 
+%
 % legend('',sprintf('Unit %d',clu_label1),sprintf('Unit %d',clu_label2))
 % ax = gca;
 % ax.FontSize = 16; %tick font
 % ax.Box = 'off'; %remove tick box
 % set(ax,'TickDir','out'); %tickmark towards outside
-% 
+%
 % axis off
 

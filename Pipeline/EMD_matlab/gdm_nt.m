@@ -33,17 +33,20 @@ function [f, L2] = gdm_nt(F1, F2,  mw1, mw2, chan_pos, dim_mask, l2_weight, xSte
 % dim_mask = dim_mask_physical;
 
 % number and length of feature vectors
-[m a] = size(F1);
-[n a] = size(F2);
+[m, ~] = size(F1);
+[n, a] = size(F2);
+
+f = zeros(m, n);   % Preallocate f with dimensions m x n
+L2 = zeros(m, n);  % Preallocate L2 with dimensions m x n
 
 % ground distance matrix
 for i = 1:m
     for j = 1:n
-%         f(i, j) = weighted_gdf_nt(F1(i, 1:a), F2(j, 1:a), squeeze(mw1(i,:,:)), squeeze(mw2(j,:,:)), chan_pos, dim_mask, l2_weight);
-%         [f(i, j) L2(i,j)] = Func(F1(i, 1:a), F2(j, 1:a), squeeze(mw1(i,:,:)), squeeze(mw2(j,:,:)), chan_pos, dim_mask, l2_weight);
-%         fprintf('F1(%d) = %d, F2(%d) = %d\n', i, F1, j, F2);
-        [f(i, j) L2(i,j)] = weighted_gdf_nt(F1(i, 1:a), F2(j, 1:a), squeeze(mw1(i,:,:)), squeeze(mw2(j,:,:)), chan_pos, dim_mask, l2_weight, xStep, zStep);
-
+        %         f(i, j) = weighted_gdf_nt(F1(i, 1:a), F2(j, 1:a), squeeze(mw1(i,:,:)), squeeze(mw2(j,:,:)), chan_pos, dim_mask, l2_weight);
+        %         [f(i, j) L2(i,j)] = Func(F1(i, 1:a), F2(j, 1:a), squeeze(mw1(i,:,:)), squeeze(mw2(j,:,:)), chan_pos, dim_mask, l2_weight);
+        %         fprintf('F1(%d) = %d, F2(%d) = %d\n', i, F1, j, F2);
+        [f(i, j), L2(i,j)] = weighted_gdf_nt(F1(i, 1:a), F2(j, 1:a), squeeze(mw1(i,:,:)), squeeze(mw2(j,:,:)), chan_pos, dim_mask, l2_weight, xStep, zStep);
+        
     end
 end
 

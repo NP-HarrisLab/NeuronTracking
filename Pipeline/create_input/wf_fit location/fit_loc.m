@@ -18,8 +18,8 @@ distsq = (chan_pos(:,1)-pk_x).^2 + (chan_pos(:,2)-pk_z).^2;
 
 chan_sel = dist_order(1:npts); % nearest npts sites
 vpp_sel = vpp_unit(chan_sel);
-x_sel = chan_pos(chan_sel,1);
-z_sel = chan_pos(chan_sel,2);
+x_sel = double(chan_pos(chan_sel,1));
+z_sel = double(chan_pos(chan_sel,2));
 
 
 a0 = pk_x;    %xsoma
@@ -37,7 +37,7 @@ newfit = fit( [x_sel, z_sel], vpp_sel, fitL, 'StartPoint', [a0, b0, c0, d0], ...
     'upper', up_bound, 'lower', low_bound);
 
 if bPlot
-    vpp_calc = feval(newfit,[x_sel, z_sel]);
+    vpp_calc = feval(newfit,[x_sel, z_sel]); %#ok<UNRCH>
     figure(uI)
     scatter( x_sel, z_sel, 200, vpp_sel, 'filled', 'square');
     hold on;
@@ -49,7 +49,7 @@ if bPlot
     residual = vpp_calc - vpp_sel;
     scatter( x_sel, z_sel, 200, residual, 'filled', 'square');
     colorbar
-    caxis([-50,50]);
+    clim([-50,50]);
 end
 
 fitvals = coeffvalues(newfit);

@@ -53,8 +53,8 @@ function [x, fval, L2] = emd_nt(F1, F2, W1, W2, mw1, mw2, chan_pos, dim_mask, l2
 % fprintf('f = %d, L2 = %d\n', f, L2);
 
 % number of feature vectors
-[m a] = size(F1);
-[n a] = size(F2);
+[m, ~] = size(F1);
+[n, ~] = size(F2);
 
 % inequality constraints
 A1 = zeros(m, m * n);
@@ -77,8 +77,9 @@ beq = ones(m + n, 1) * min(sum(W1), sum(W2));
 lb = zeros(1, m * n);
 
 % linear programming
-[x, fval] = linprog(f, A, b, Aeq, beq, lb);
+options = optimoptions('linprog', 'Display', 'none');
+[x, fval] = linprog(f, A, b, Aeq, beq, lb, [], options);
 fval = fval / sum(x);
 
-%fprintf('Call to linprog complete. fval = %d\n', fval);
+% fprintf('Call to linprog complete. fval = %d\n', fval);
 end

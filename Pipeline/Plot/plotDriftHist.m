@@ -29,7 +29,7 @@ figHeight = numRow*panelHeight;
 binsize = 4;
 edges = (-100:binsize:100);
 
-h = figure('Name','drift_hist','Units','Centimeters', 'Position',[1,10,figWidth,figHeight]);
+figure('Name','drift_hist','Units','Centimeters', 'Position',[1,10,figWidth,figHeight]);
 tiledlayout(numRow,4);
 
 for i = 1:nRes

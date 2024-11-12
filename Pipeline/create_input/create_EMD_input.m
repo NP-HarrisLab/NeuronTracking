@@ -51,8 +51,8 @@ metrics_ind = [9,10,11,1,3,4,5,6,8];
 [npts_f1,~] = size(wm1);
 [npts_f2,~] = size(wm2);
 nDim = 9;
-f1 = zeros([npts_f1,nDim]);
-f2 = zeros([npts_f2,nDim]);
+f1 = zeros(npts_f1, nDim);
+f2 = zeros(npts_f2, nDim);
 
 
 %load wf-fit locations
@@ -63,16 +63,16 @@ f2(:,4:9) = wm2(:,metrics_ind(4:9));
 
 
 % check for units with no spikes (all mw entries = 0)
-sum_unit_mw1 = sum(sum(mw1,[3]),[2]);
+sum_unit_mw1 = sum(sum(mw1,3),2);
 allzero_mw1 = (sum_unit_mw1 == 0);
-sum_unit_mw2 = sum(sum(mw2,[3]),[2]);
+sum_unit_mw2 = sum(sum(mw2,3),2);
 allzero_mw2 = (sum_unit_mw2 == 0);
 
 % Limit to particular shank
-if isfield(input,'shank') && input.shank >= 0
+if isfield(input, 'shank') && input.shank >= 0
     shank_center = 32 + input.shank*250;  % for 2.0 probes, chan_pos including offset
-    onshank_mw1 = abs(wm1(:,metrics_ind(1))-shank_center) < 100;
-    onshank_mw2 = abs(wm2(:,metrics_ind(1))-shank_center) < 100;
+    onshank_mw1 = abs(wm1(:,metrics_ind(1)) - shank_center) < 100;
+    onshank_mw2 = abs(wm2(:,metrics_ind(1)) - shank_center) < 100;
 else
     onshank_mw1 = ones([npts_f1,1]);
     onshank_mw2 = ones([npts_f2,1]);
@@ -89,7 +89,9 @@ else
     good_unit_2 = ~allzero_mw2 & onshank_mw2;
 end
 
-fprintf('Number of units to include in match: %d, %d\n', sum(good_unit_1), sum(good_unit_2));
+if stage == "post"
+    fprintf('    Number of units to include in match: %d, %d\n', sum(good_unit_1), sum(good_unit_2));
+end
 
 f1_good_orig = find(good_unit_1); % original 1-based unit labels for KSgood units
 f2_good_orig = find(good_unit_2);

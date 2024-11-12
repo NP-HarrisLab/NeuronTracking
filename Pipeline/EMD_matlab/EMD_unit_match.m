@@ -21,10 +21,10 @@ end
 switch stage
     case 'pre'
         inputName = input.input_name;
-        output_name = input.filename_pre; %matched file
+        output_name = input.filename_pre; % matched file
     case 'post'
         inputName = input.input_name_post;
-        output_name = input.filename_post; %matched file
+        output_name = input.filename_post; % matched file
 end
 out_fullpath = fullfile(rootD, output_name);
 
@@ -39,8 +39,8 @@ f1_labels = points.f1_labels;
 f2_labels = points.f2_labels;
 
 % set weights = 1
-w1 = ones(size(f1,1),1);%ones([length(f1),1])/length(f1);
-w2 = ones(size(f2,1),1);%ones([length(f2),1])/length(f2);
+w1 = ones(size(f1,1),1);
+w2 = ones(size(f2,1),1);
 
 
 % % test batch with #3 neurons 
@@ -63,7 +63,7 @@ Cw = [];
 
 switch stage
     case 'pre'
-        [x, fval, C] = emd_nt(f1, f2, w1, w2, mw1, mw2, chan_pos, dim_mask, l2_weight, xStep, zStep, @weighted_gdf_nt);
+        [x, ~, C] = emd_nt(f1, f2, w1, w2, mw1, mw2, chan_pos, dim_mask, l2_weight, xStep, zStep, @weighted_gdf_nt);
         P = reshape(x,[size(f2,1),size(f1,1)]);
         if diagDistCalc
             [Cp,~] = gdm_nt(f1, f2, mw1, mw2, chan_pos, dim_mask_physical, l2_weight, xStep, zStep, @weighted_gdf_nt);
@@ -73,7 +73,7 @@ switch stage
             Cw = zeros(size(C));
         end
     case 'post'
-        [x, fval, C] = emd_nt(f1, f2, w1, w2, mw1, mw2, chan_pos, dim_mask,l2_weight, xStep, zStep, @weighted_gdf_nt);
+         [x, ~, C] = emd_nt(f1, f2, w1, w2, mw1, mw2, chan_pos, dim_mask,l2_weight, xStep, zStep, @weighted_gdf_nt);
         P = reshape(x,[size(f2,1),size(f1,1)]);
         if diagDistCalc
             [Cp,~] = gdm_nt(f1, f2, mw1, mw2, chan_pos, dim_mask_physical, l2_weight, xStep, zStep, @weighted_gdf_nt);
@@ -244,7 +244,6 @@ for nm = 1:np
 
 end
 all_results = all_results(all_results(:,7)>0,:);
-
 
 % count recovry rate if with validation
 if v == 1

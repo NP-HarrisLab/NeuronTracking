@@ -1,11 +1,11 @@
 function estFP_10um = fit_zDist( varargin )
 
-if (length(varargin) == 0)
+if (isempty(varargin))
     clear all;
     % Edit parameters manually
     % Input data for the fit is an array of z distances, here extracted
     % from a summary datafile. In standard pipeline output, z distances are
-    % in column 7 of EMD_postN.all_results or in the results folder Output.mat 
+    % in column 7 of EMD_postN.all_results or in the results folder Output.mat
     % output.all_results_post (along with more diagnostic metrics).
     genpath('C:\Users\labadmin\Desktop\Neuron Tracking Pipeline\User version\') % NEED CHANGE: Path to the repo
     % load in arrays of measured distances. This can be any array in a mat
@@ -17,22 +17,22 @@ if (length(varargin) == 0)
     zDistMat = load('zDist_all.mat');
     zDist_all = zDistMat.data; % NEED CHANGE: z distances
     data_label = '';
-    % set fg_width -1 to fit the width of the folded gaussian 
+    % set fg_width -1 to fit the width of the folded gaussian
     % of correct pairs; set to > 0 to fix at a known width; 3.5 typical for
     % NP 2.0 data
-    fg_width = -1; 
+    fg_width = -1;
 else
-    % fit the zDist_all data passed in 
+    % fit the zDist_all data passed in
     inputCell = varargin(1);
     zDist_all = inputCell{1};   % array of distances
     inputCell = varargin(2);
     data_label = inputCell{1};  % label for graphs
-    % 3rd argument: set to -1 to fit the width of the folded gaussian 
+    % 3rd argument: set to -1 to fit the width of the folded gaussian
     % of correct pairs; set to > 0 to fix at a known width; 3.5 typical for
     % NP 2.0 data
     inputCell = varargin(3);
     fg_width = inputCell{1};  % as above, call with -1 to fit fg_width, or a value > 0 to fix.
-end 
+end
 
 % edges for histogramming the distributions
 edges = (0:2:100);
@@ -43,7 +43,7 @@ all_cnts = histcounts(zDist_all, edges);
 
 
 fitP_FG = fittype('pd_fg_est_user(delta, a, b, c, d)', ...
-        'independent', 'delta', 'dependent', 'pdelta');
+    'independent', 'delta', 'dependent', 'pdelta');
 
 if fg_width < 0
     % fit with no assumption for the width of the folded Gaussian distribtuion
@@ -57,7 +57,7 @@ if fg_width < 0
     low_bound = [-inf, -inf, -inf, 0];
     
     all_fo_start = fit( bin_centers, all_cnts', fitP_FG, 'StartPoint', [a0, b0, c0, d0], ...
-                  'upper', up_bound, 'lower', low_bound)
+        'upper', up_bound, 'lower', low_bound)
     
     CIF = predint(all_fo_start,bin_centers,0.95,'Functional');
 else
@@ -70,13 +70,13 @@ else
     
     up_bound = [inf, inf, 1];
     low_bound = [10, 0, 0];
-
+    
     fitP_FG_fix = fittype('pd_fg_est(delta, a, b, c, d)', ...
-    'independent', {'delta'}, 'dependent', 'pdelta', 'problem','a' );
-
+        'independent', {'delta'}, 'dependent', 'pdelta', 'problem','a' );
+    
     all_fo_start = fit( bin_centers, all_cnts', fitP_FG_fix, 'problem', a0, 'StartPoint', [b0, c0, d0], ...
-              'upper', up_bound, 'lower', low_bound)
-  
+        'upper', up_bound, 'lower', low_bound)
+    
     CIF = predint(all_fo_start,bin_centers,0.95,'Functional');
 end
 
@@ -98,7 +98,7 @@ legend('Location', 'northeast');
 legend('Folded Gaussian + Exponential fit','Unit count data','95% CI upper bound','95% CI lower bound')
 xlabel('Z distances (\mu m)');
 ylabel('Counts');
-ax = gca; 
+ax = gca;
 ax.FontSize = 12;
 hold off;
 ax.Box = 'off';
@@ -109,11 +109,11 @@ set(ax,'TickDir','out');
 
 
 
-% Plot fraction fp vs threshold 
+% Plot fraction fp vs threshold
 figure()
 th_vals = (0:2:20);
 
-decay = all_fo_start.a;
+% decay = all_fo_start.a;
 norm_factor = all_fo_start.b;
 frac_corr_fit = all_fo_start.d;
 incorr_zhalf = all_fo_start.c;

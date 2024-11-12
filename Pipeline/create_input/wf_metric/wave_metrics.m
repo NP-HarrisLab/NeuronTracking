@@ -39,7 +39,7 @@ for i = 1:nUnit
     [~,peak_idx] = max(cw);
     bPos = (cw(peak_idx) > abs(cw(trough_idx)));
     back_level = mean(cw(1:5));
-
+    
     % duration/peak to trough time
     if bPos
         % this is a postive going peak, search from peak index to the next
@@ -58,56 +58,58 @@ for i = 1:nUnit
         threshold = cw(peak_idx) * 0.5;
         thresh_crossing_1 = min(timestamps(cw(1:peak_idx)>threshold));
         tc2_ind = peak_idx + min(find(cw(peak_idx:end)<threshold))-1;
-        thresh_crossing_2 = timestamps(tc2_ind);     
+        thresh_crossing_2 = timestamps(tc2_ind);
     else
         threshold = cw(trough_idx) * 0.5;
         thresh_crossing_1 = min(timestamps(cw(1:trough_idx)<threshold));
         tc2_ind = trough_idx + min(find(cw(trough_idx:end)>threshold))-1;
-        thresh_crossing_2 = timestamps(tc2_ind);  
+        thresh_crossing_2 = timestamps(tc2_ind);
     end
     if ~isempty(thresh_crossing_2) && ~isempty(thresh_crossing_1)
         fwhm = thresh_crossing_2 - thresh_crossing_1;
     end
-
+    
     % PT ratio
     PT_ratio = 0;
     if cw(trough_idx) ~= 0
         PT_ratio = abs(cw(peak_idx)/cw(trough_idx));
     end
-
+    
     % height of pre-peak, for negative going spikes
     pre_peak = 0;
     if ~bPos
         pre_peak = max(cw(1:trough_idx)) - back_level;
     end
-
+    
     % recovery slope
-    recovery_slope = 0;
     if bPos
-       if trough_idx > npts_up-20
-           window = npts_up - trough_idx;
-       end
-       x = timestamps(trough_idx:trough_idx+window-1); 
-       X = [x', ones(window,1)];
-       lreg = regress(cw(peak_idx:peak_idx+window-1)',X);
-       lreg(1) = -1*lreg(1);
-    else   
+        if trough_idx > npts_up-20
+            window = npts_up - trough_idx;
+        end
+        if peak_idx > npts_up-20
+            window = npts_up - peak_idx;
+        end
+        x = timestamps(trough_idx:trough_idx+window-1);
+        X = [x', ones(window,1)];
+        lreg = regress(cw(peak_idx:peak_idx+window-1)',X);
+        lreg(1) = -1*lreg(1);
+    else
         % fit recover after repolarization (peak down to baseline)
         if peak_idx > npts_up-20
-           window = npts_up - peak_idx;
-       end
+            window = npts_up - peak_idx;
+        end
         x = timestamps(peak_idx:peak_idx+window-1);
         X = [x', ones(window,1)];
         lreg = regress(cw(peak_idx:peak_idx+window-1)',X);
     end
     recovery_slope = lreg(1) * 1e-3; % convert to V/s
     
-
-
     
-    % 2D waveform metrics    
+    
+    
+    % 2D waveform metrics
     pp_unit = squeeze(pp_all(i,:))';
-
+    
     % Julien Boussard - style fit of peak-to-peak voltage vs position
     % if background sub pp_unit > 60 uV, attempt a fit of the
     % background subtracted pp_all
@@ -121,7 +123,7 @@ for i = 1:nUnit
         fitZ = chan_pos(pk_chan(i),2);
         fitY = -1;      % a marker for no fit
     end
-
+    
     % calculate spread of waveforms in z
     sp_thresh = 0.2*max(pp_unit);
     chan_above = pp_unit > sp_thresh;
@@ -131,8 +133,8 @@ for i = 1:nUnit
     if ~isempty(zmax) && ~isempty(zmin)
         z_sp = zmax(1)-zmin(1);
     end
-   
-
+    
+    
     % fill in meas_out for this unit
     meas_out(i,3) = duration;
     meas_out(i,4) = fwhm;
@@ -143,7 +145,7 @@ for i = 1:nUnit
     meas_out(i,9) = fitX;
     meas_out(i,10) = fitZ;
     meas_out(i,11) = fitY;
-
+    
 end
 
 end
