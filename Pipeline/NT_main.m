@@ -18,8 +18,8 @@ if nChanPos < nChanMW
 end
 
 % Estimate location 
-wf_metrics1 = wave_metrics(mwf1, input); %col 9,10,11 = x,z,y
-wf_metrics2 = wave_metrics(mwf2, input);
+wf_metrics1 = wave_metrics(mwf1, input, input.data_path1); %col 9,10,11 = x,z,y
+wf_metrics2 = wave_metrics(mwf2, input, input.data_path2);
 
 % Estimate drift
 output.threshold = input.threshold;

@@ -65,7 +65,7 @@ function main(ks_folders, npy_matlab_path, output_path, varargin)
     
     
     % Input data characteristics
-    input.fs = 30000; % acquisition rate, Neuropixels default
+    input.fs = 30000; % default acquisition rate, will read in .meta if possible
     input.ts = 82; % wf time samples, set by C_Waves
     
     % parameters for running match
@@ -139,9 +139,9 @@ function mustBeFileType(filename, ext)
     if ~endsWith(filename, ext)
         error("The provided name ('%s') must end with ('%s')", filename, ext)
     end
-    end
+end
     
-    function data_name = getDataName(dataFolder)
+function data_name = getDataName(dataFolder)
     data_name = split(dataFolder, '\');
     
     if data_name(end) == ""

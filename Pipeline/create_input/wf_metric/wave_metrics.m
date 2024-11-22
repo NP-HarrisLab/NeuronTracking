@@ -1,4 +1,16 @@
-function meas_out = wave_metrics(mw, input)
+function meas_out = wave_metrics(mw, input, dataPath)
+
+% get sample rate from meta file if possible, else use default created in
+% main
+metaFolder = fileparts(dataPath);
+metaFiles = dir(fullfile(metaFolder, '*.meta'));
+if isempty(metaFiles)
+    % use default sample rate
+    fs = input.fs;
+else
+    metaFilePath = fullfile(metaFolder, metaFiles(1).name);
+    fs = get_sample_rate(metaFilePath, input.fs);
+end
 
 chan_pos = input.chan_pos;
 [nUnit, nChan, nt] = size(mw);
@@ -27,7 +39,7 @@ meas_out(:,1) = pp_unit;
 meas_out(:,2) = min_unit;
 
 pk_wave_upsamp = resample(pk_wave,200,input.ts,'Dimension',2);
-time_conv = (200/input.ts)*input.fs/1000; % to convert from points to ms
+time_conv = (200/input.ts)*fs/1000; % to convert from points to ms
 [~,nt_up] = size(pk_wave_upsamp);
 timestamps = (1:nt_up)/time_conv;
 window = 20;  % for slope measurement
@@ -148,4 +160,28 @@ for i = 1:nUnit
     
 end
 
+end
+
+function fs = get_sample_rate(metaFile, default)
+    fs = default; % set default value and override if found
+    fid = fopen(metaFile, 'r');
+    if fid == -1
+        warning(['Could not open file: ', metaFile]);
+        return
+    end
+    % read file
+    while ~feof(fid)
+        line = fgetl(fid);
+        if contains(line, 'imSampRate')
+            fclose(fid);
+            parts = strsplit(line, '=');
+            if numel(parts) == 2
+                fs = str2double(parts{2});
+            else
+                warning('imSampRate line has more than 1 value')
+            end
+            return
+        end
+    end
+    fclose(fid);
 end

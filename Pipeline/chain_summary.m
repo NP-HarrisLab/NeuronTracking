@@ -5,6 +5,7 @@ function [chain_all,z_loc,len] = chain_summary(all_input,all_output,numData,outp
 
 % Summarize chains
 numChain = 50; % starting size, expand as needed
+x_loc = NaN(numChain,numData); % hold x locations
 z_loc = NaN(numChain,numData); % hold z locations
 chain_all = NaN(numChain, numData); % hold chains
 
@@ -14,15 +15,18 @@ for ir = 1:length(all_output)-1
     EMD_path = all_input{ir}.input.EMD_path;
     pair1 = all_output{ir}.output.all_results_post; % KSgood pair label in day 1
     match1 = load(fullfile(EMD_path, ['EMD_post', num2str(ir), '.mat']));
+    x1 = match1.f1(:,1); % x-location d1
+    x2 = match1.f2(:,1); % x-location d2
     z1 = match1.f1(:,2); % z-location d1
     z2 = match1.f2(:,2); % z-location d2
-    z_label1 = match1.f1_labels;
-    z_label2 = match1.f2_labels;
+    label1 = match1.f1_labels;
+    label2 = match1.f2_labels;
     
     pair2 = all_output{ir+1}.output.all_results_post; % KSgood pair label in day 2
     match2 = load(fullfile(EMD_path, ['EMD_post', num2str(ir+1), '.mat']));
+    x3 = match2.f2(:,1); % x-location in day 3
     z3 = match2.f2(:,2); % z-location in day 3
-    z_label3 = match2.f2_labels;
+    label3 = match2.f2_labels;
     
     % Data Cleaning
     allPair1 = pair1(pair1(:,7) <= all_input{ir}.input.threshold, :); % only include pair above threshold
@@ -34,26 +38,32 @@ for ir = 1:length(all_output)-1
         if any(chain_all(:,ir+1) == same_clu(ic))
             idx_align = find(chain_all(:,ir+1)==same_clu(ic)); % align with previous tracked clusters
             chain_all(idx_align,ir+2) = allPair2((allPair2(:,3) == same_clu(ic)),2); % cluster label in day x
-            z_loc(idx_align,ir+2) = z3((z_label3 == chain_all(idx_align,ir+2)));
+            x_loc(idx_align,ir+2) = x3((label3 == chain_all(idx_align,ir+2)));
+            z_loc(idx_align,ir+2) = z3((label3 == chain_all(idx_align,ir+2)));
         else %create a half chain
             count = count + 1;
             % Expand chain_all and z_loc if count exceeds current size
             if count > size(chain_all, 1)
                 chain_all = [chain_all; NaN(numChain, numData)];
+                x_loc = [x_loc; NaN(numChain, numData)];
                 z_loc = [z_loc; NaN(numChain, numData)];
             end
             chain_all(count,ir+1) = same_clu(ic);
             chain_all(count,ir) = allPair1(allPair1(:,2) == same_clu(ic),3);
             chain_all(count,ir+2) = allPair2(allPair2(:,3) == same_clu(ic),2); %cluster label in day x
-            z_loc(count,ir+1) = z2(z_label2 == chain_all(count,ir+1));
-            z_loc(count,ir) = z1(z_label1 == chain_all(count,ir));
-            z_loc(count,ir+2) = z3(z_label3 == chain_all(count,ir+2));
+            x_loc(count,ir+1) = x2(label2 == chain_all(count,ir+1));
+            x_loc(count,ir) = x1(label1 == chain_all(count,ir));
+            x_loc(count,ir+2) = x3(label3 == chain_all(count,ir+2));
+            z_loc(count,ir+1) = z2(label2 == chain_all(count,ir+1));
+            z_loc(count,ir) = z1(label1 == chain_all(count,ir));
+            z_loc(count,ir+2) = z3(label3 == chain_all(count,ir+2));
         end
     end
 end
 
 % Exclude rows that are entirely NaN (no chain)
 chain_all(all(isnan(chain_all), 2), :) = [];
+x_loc(all(isnan(x_loc), 2), :) = [];
 z_loc(all(isnan(z_loc), 2), :) = [];
 len = sum(~isnan(chain_all), 2); % chain lengths
 
@@ -61,7 +71,8 @@ len = sum(~isnan(chain_all), 2); % chain lengths
 chain_all = chain_all - 1;
 
 if count > 0
-    save(fullfile(output_path,'chain_summary.mat'), 'all_input', 'all_output', 'chain_all', 'z_loc', 'len')
+    save(fullfile(output_path, 'chain_summary.mat'), 'all_input', 'all_output', 'chain_all', 'x_loc', 'z_loc', 'len')
+    writematrix(chain_all, fullfile(output_path, 'chain_all.csv'))
 else
     fprintf('No chains found.\n');
 end
