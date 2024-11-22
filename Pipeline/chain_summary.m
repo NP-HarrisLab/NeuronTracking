@@ -44,9 +44,9 @@ for ir = 1:length(all_output)-1
             count = count + 1;
             % Expand chain_all and z_loc if count exceeds current size
             if count > size(chain_all, 1)
-                chain_all = [chain_all; NaN(numChain, numData)];
-                x_loc = [x_loc; NaN(numChain, numData)];
-                z_loc = [z_loc; NaN(numChain, numData)];
+                chain_all = [chain_all; NaN(numChain, numData)]; %#ok<AGROW>
+                x_loc = [x_loc; NaN(numChain, numData)]; %#ok<AGROW>
+                z_loc = [z_loc; NaN(numChain, numData)]; %#ok<AGROW>
             end
             chain_all(count,ir+1) = same_clu(ic);
             chain_all(count,ir) = allPair1(allPair1(:,2) == same_clu(ic),3);
