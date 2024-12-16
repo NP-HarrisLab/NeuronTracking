@@ -16,7 +16,7 @@ chan_pos = input.chan_pos;
 [nUnit, nChan, nt] = size(mw);
 
 pp_all = squeeze(max(mw,[],3)-min(mw,[],3));
-[pp_unit, pk_chan] = max(pp_all,[],2);
+[pp_unit, pk_chan] = max(pp_all(:,1:length(input.chan_map)),[],2);
 % get background of pp -- this is always nonzero, since it includes the
 % noise.
 ppvalues = reshape(pp_all,[nUnit*nChan,1]);
@@ -49,7 +49,7 @@ for i = 1:nUnit
     npts_up = numel(cw);
     [~,trough_idx] = min(cw);
     [~,peak_idx] = max(cw);
-    bPos = (cw(peak_idx) > abs(cw(trough_idx)));
+    bPos = (cw(peak_idx) > cw(trough_idx));
     back_level = mean(cw(1:5));
     
     % duration/peak to trough time
@@ -64,7 +64,7 @@ for i = 1:nUnit
         duration = timestamps(trough_idx + loc_peak_idx-1) - timestamps(trough_idx);
     end
     
-    % fwhm
+    % full width at half maximum (fwhm)
     fwhm = 0;
     if bPos
         threshold = cw(peak_idx) * 0.5;
@@ -98,12 +98,20 @@ for i = 1:nUnit
         if trough_idx > npts_up-20
             window = npts_up - trough_idx;
         end
-        if peak_idx > npts_up-20
-            window = npts_up - peak_idx;
-        end
+        
         x = timestamps(trough_idx:trough_idx+window-1);
         X = [x', ones(window,1)];
-        lreg = regress(cw(peak_idx:peak_idx+window-1)',X);
+        
+        
+        if (peak_idx+window-1) > length(cw)
+            
+            X = X(1:length(cw(peak_idx:end)), :);
+            lreg = regress(cw(peak_idx:length(cw))',X);
+        else
+            lreg = regress(cw(peak_idx:peak_idx+window-1)',X);
+        end
+        
+        
         lreg(1) = -1*lreg(1);
     else
         % fit recover after repolarization (peak down to baseline)
@@ -112,8 +120,17 @@ for i = 1:nUnit
         end
         x = timestamps(peak_idx:peak_idx+window-1);
         X = [x', ones(window,1)];
-        lreg = regress(cw(peak_idx:peak_idx+window-1)',X);
+        
+        
+        
+        if (peak_idx+window-1) > length(cw)
+            X = X(1:length(peak_idx:end));
+            lreg(regress(cw(peak_idx:end)',X));
+        else
+            lreg = regress(cw(peak_idx:peak_idx+window-1)',X);
+        end
     end
+    
     recovery_slope = lreg(1) * 1e-3; % convert to V/s
     
     
@@ -139,6 +156,7 @@ for i = 1:nUnit
     % calculate spread of waveforms in z
     sp_thresh = 0.2*max(pp_unit);
     chan_above = pp_unit > sp_thresh;
+    chan_above = chan_above(1:length(chan_pos));
     zmax = max(chan_pos(chan_above,2));
     zmin = min(chan_pos(chan_above,2));
     z_sp = 0;
@@ -163,25 +181,25 @@ end
 end
 
 function fs = get_sample_rate(metaFile, default)
-    fs = default; % set default value and override if found
-    fid = fopen(metaFile, 'r');
-    if fid == -1
-        warning(['Could not open file: ', metaFile]);
+fs = default; % set default value and override if found
+fid = fopen(metaFile, 'r');
+if fid == -1
+    warning(['Could not open file: ', metaFile]);
+    return
+end
+% read file
+while ~feof(fid)
+    line = fgetl(fid);
+    if contains(line, 'imSampRate')
+        fclose(fid);
+        parts = strsplit(line, '=');
+        if numel(parts) == 2
+            fs = str2double(parts{2});
+        else
+            warning('imSampRate line has more than 1 value')
+        end
         return
     end
-    % read file
-    while ~feof(fid)
-        line = fgetl(fid);
-        if contains(line, 'imSampRate')
-            fclose(fid);
-            parts = strsplit(line, '=');
-            if numel(parts) == 2
-                fs = str2double(parts{2});
-            else
-                warning('imSampRate line has more than 1 value')
-            end
-            return
-        end
-    end
-    fclose(fid);
+end
+fclose(fid);
 end
